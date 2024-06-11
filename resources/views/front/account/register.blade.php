@@ -5,7 +5,7 @@
         <div class="container">
             <div class="light-font">
                 <ol class="breadcrumb primary-color mb-0">
-                    <li class="breadcrumb-item"><a class="white-text" href="#">Home</a></li>
+                    <li class="breadcrumb-item"><a class="white-text" href="{{ route('front.home') }}">Home</a></li>
                     <li class="breadcrumb-item">Register</li>
                 </ol>
             </div>
@@ -84,6 +84,14 @@
                             $("#email").removeClass('is-invalid');
                         }
 
+                        if (errors.phone) {
+                            $("#phone").siblings("p").addClass('invalid-feedback').html(errors.phone);
+                            $("#phone").addClass('is-invalid');
+                        } else {
+                            $("#phone").siblings("p").removeClass('invalid-feedback').html('');
+                            $("#phone").removeClass('is-invalid');
+                        }
+
                         if (errors.password) {
                             $("#password").siblings("p").addClass('invalid-feedback').html(errors
                                 .password);
@@ -92,12 +100,16 @@
                             $("#password").siblings("p").removeClass('invalid-feedback').html('');
                             $("#password").removeClass('is-invalid');
                         }
-                        if (errors.phone) {
-                            $("#phone").siblings("p").addClass('invalid-feedback').html(errors.phone);
-                            $("#phone").addClass('is-invalid');
+
+                        if (errors.password_confirmation) {
+                            $("#password_confirmation").siblings("p").addClass('invalid-feedback').html(
+                                errors
+                                .password_confirmation);
+                            $("#password_confirmation").addClass('is-invalid');
                         } else {
-                            $("#phone").siblings("p").removeClass('invalid-feedback').html('');
-                            $("#phone").removeClass('is-invalid');
+                            $("#password_confirmation").siblings("p").removeClass('invalid-feedback')
+                                .html('');
+                            $("#password_confirmation").removeClass('is-invalid');
                         }
 
                     } else {
@@ -107,11 +119,15 @@
                         $("#email").siblings("p").removeClass('invalid-feedback').html('');
                         $("#email").removeClass('is-invalid');
 
+                        $("#phone").siblings("p").removeClass('invalid-feedback').html('');
+                        $("#phone").removeClass('is-invalid');
+
                         $("#password").siblings("p").removeClass('invalid-feedback').html('');
                         $("#password").removeClass('is-invalid');
 
-                        $("#phone").siblings("p").removeClass('invalid-feedback').html('');
-                        $("#phone").removeClass('is-invalid');
+                        $("#password_confirmation").siblings("p").removeClass('invalid-feedback').html(
+                            '');
+                        $("#password_confirmation").removeClass('is-invalid');
 
                         window.location.href = "{{ route('account.login') }}";
                     }

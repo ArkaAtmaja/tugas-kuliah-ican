@@ -62,7 +62,7 @@
                                         <td>{{ $user->id }}</td>
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
-                                        <td>{{ $user->phone }}</td>
+                                        <td>@formatPhone($user->phone)</td>
                                         <td>
                                             @if ($user->status == 1)
                                                 <svg class="text-success-500 h-6 w-6 text-success"

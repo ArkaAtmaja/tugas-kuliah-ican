@@ -31,25 +31,27 @@ class AuthController extends Controller
 
     public function processRegister(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:3',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:5',
-            'phone' => 'required|numeric',
+            'password_confirmation' => 'required_with:password|same:password|min:5',
+            'phone' => 'required|digits_between:11,13|numeric',
         ], [
             'name.required' => 'Harap isi nama terlebih dahulu',
             'name.min' => 'Nama minimal harus terdiri dari 3 karakter',
             'email.required' => 'Harap isi email terlebih dahulu',
-            'email.email' => 'format alamat email tidak valid.',
+            'email.email' => 'Format alamat email tidak valid.',
             'email.unique' => 'Email sudah ada, harap gunakan email yang berbeda',
             'password.required' => 'Harap isi password terlebih dahulu',
             'password.min' => 'Password minimal 5 karakter',
+            'password_confirmation.required_with' => 'Harap isi konfirmasi password',
+            'password_confirmation.same' => 'Konfirmasi password tidak sesuai dengan password',
+            'password_confirmation.min' => 'Konfirmasi password minimal 5 karakter',
             'phone.required' => 'Harap isi nomor telepon terlebih dahulu',
+            'phone.digits_between' => 'Nomor telepon harus terdiri dari 11 sampai 13 digit',
             'phone.numeric' => 'Nomor telepon harus berupa angka',
-            // 'password.confirmed' => 'Konfirmasi password tidak sesuai.'
         ]);
-
 
         if ($validator->passes()) {
 
@@ -271,39 +273,50 @@ class AuthController extends Controller
         }
     }
 
-    public function showchangePasswordForm(){
+    public function showchangePasswordForm()
+    {
         return view('front.account.change-password');
     }
 
-    public function changePassword(Request $request){
-        $validator = Validator::make($request->all(),[
-            'old_password' => 'required',
-            'new_password' => 'required|min:5',
-            'confirm_password' => 'required|same:new_password',
-        ]);
+    public function changePassword(Request $request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'old_password' => 'required',
+                'new_password' => 'required|min:5',
+                'confirm_password' => 'required|same:new_password',
+            ],
+            [
+                'old_password.required' => 'Harap isi kata sandi lama terlebih dahulu',
+                'new_password.required' => 'Harap isi kata sandi baru terlebih dahulu',
+                'new_password.min' => 'Kata sandi baru harus terdiri dari minimal 5 karakter',
+                'confirm_password.required' => 'Harap isi konfirmasi kata sandi terlebih dahulu',
+                'confirm_password.same' => 'Konfirmasi kata sandi harus sama dengan kata sandi baru'
+            ]
+        );
 
         if ($validator->passes()) {
 
-            $user = User::select('id','password')->where('id', Auth::user()->id)->first();
+            $user = User::select('id', 'password')->where('id', Auth::user()->id)->first();
 
-            if(!Hash::check($request->old_password, $user->password)){
+            if (!Hash::check($request->old_password, $user->password)) {
                 session()->flash('error', 'Password lama tidak sesuai, Silahkan coba lagi.');
 
                 return response()->json([
-                    'status' => true,            
+                    'status' => true,
                 ]);
             }
 
-            User::where('id',$user->id)->update([
+            User::where('id', $user->id)->update([
                 'password' => Hash::make($request->new_password)
             ]);
 
-            session()->flash('sukses', 'Password berhasil diubah.');
+            session()->flash('success', 'Password berhasil diubah.');
 
             return response()->json([
                 'status' => true,
             ]);
-
         } else {
             return response()->json([
                 'status' => false,
@@ -312,12 +325,14 @@ class AuthController extends Controller
         }
     }
 
-    public function forgotPassword() {
+    public function forgotPassword()
+    {
         return view('front.account.forgot-password');
     }
 
-    public function processForgotPassword(Request $request) {
-       $validator = Validator::make($request->all(),[
+    public function processForgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email'
         ]);
 
@@ -346,65 +361,62 @@ class AuthController extends Controller
 
         Mail::to($request->email)->send(new ResetPasswordEmail($formData));
 
-        return redirect()->route('front.forgotPassword')->with('sukses',"Silahkan Cek Inbox untuk reset password." );
+        return redirect()->route('front.forgotPassword')->with('sukses', "Silahkan Cek Inbox untuk reset password.");
     }
 
-    public function resetPassword($token){
+    public function resetPassword($token)
+    {
 
-       $tokenExist = DB::table('password_reset_tokens')->where('token', $token)->first();
+        $tokenExist = DB::table('password_reset_tokens')->where('token', $token)->first();
 
-       if ($tokenExist == null){
+        if ($tokenExist == null) {
             return redirect()->route('front.forgotPassword')->with('error', 'invalid request');
-       }
+        }
 
-        return view('front.account.reset-password',[
+        return view('front.account.reset-password', [
             'token' => $token
         ]);
     }
 
     public function processResetPassword(Request $request)
-{
-    $token = $request->token;
+    {
+        $token = $request->token;
 
-    // Cari token di tabel password_reset_tokens
-    $tokenObj = DB::table('password_reset_tokens')->where('token', $token)->first();
+        // Cari token di tabel password_reset_tokens
+        $tokenObj = DB::table('password_reset_tokens')->where('token', $token)->first();
 
-    // Cek apakah token valid
-    if ($tokenObj == null) {
-        return redirect()->route('front.forgotPassword')->with('error', 'Permintaan tidak valid.');
+        // Cek apakah token valid
+        if ($tokenObj == null) {
+            return redirect()->route('front.forgotPassword')->with('error', 'Permintaan tidak valid.');
+        }
+
+        // Cari user berdasarkan email dari tokenObj
+        $user = User::where('email', $tokenObj->email)->first();
+
+        // Cek apakah user ditemukan
+        if (!$user) {
+            return redirect()->route('front.forgotPassword')->with('error', 'User tidak ditemukan.');
+        }
+
+        // Validasi password
+        $validator = Validator::make($request->all(), [
+            'new_password' => 'required|min:5',
+            'confirm_password' => 'required|same:new_password'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('front.resetPassword', $token)->withErrors($validator);
+        }
+
+        // Update password user
+        $user->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+        // Hapus token dari tabel password_reset_tokens
+        DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+
+        // Redirect ke halaman login dengan pesan sukses
+        return redirect()->route('account.login')->with('success', 'Berhasil mengubah password.');
     }
-
-    // Cari user berdasarkan email dari tokenObj
-    $user = User::where('email', $tokenObj->email)->first();
-
-    // Cek apakah user ditemukan
-    if (!$user) {
-        return redirect()->route('front.forgotPassword')->with('error', 'User tidak ditemukan.');
-    }
-
-    // Validasi password
-    $validator = Validator::make($request->all(), [
-        'new_password' => 'required|min:5',
-        'confirm_password' => 'required|same:new_password'
-    ]);
-
-    if ($validator->fails()) {
-        return redirect()->route('front.resetPassword', $token)->withErrors($validator);
-    }
-
-    // Update password user
-    $user->update([
-        'password' => Hash::make($request->new_password)
-    ]);
-
-    // Hapus token dari tabel password_reset_tokens
-    DB::table('password_reset_tokens')->where('email', $user->email)->delete();
-
-    // Redirect ke halaman login dengan pesan sukses
-    return redirect()->route('account.login')->with('success', 'Berhasil mengubah password.');
-}
-
-
-
-
 }

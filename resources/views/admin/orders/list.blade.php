@@ -63,7 +63,7 @@
                                         <td>{{ $order->id }}</td>
                                         <td>{{ $order->name }}</td>
                                         <td>{{ $order->email }}</td>
-                                        <td>{{ $order->mobile }}</td>
+                                        <td>@formatPhone($order->mobile)</td>
                                         <td>
                                             @if ($order->status == 'pending')
                                                 <span class="badge bg-danger">Tertunda</span>

@@ -1,7 +1,7 @@
 @extends('front.layouts.app')
 
 @section('content')
-<section class="section-5 pt-3 pb-3 mb-3 bg-white">
+    <section class="section-5 pt-3 pb-3 mb-3 bg-white">
         <div class="container">
             <div class="light-font">
                 <ol class="breadcrumb primary-color mb-0">
@@ -38,31 +38,30 @@
                                         @foreach ($orders as $order)
                                             <tr>
                                                 <td>
-                                                    <a href="{{route('account.orderDetail', $order->id)}}">{{ $order->id }}</a>
+                                                    <a
+                                                        href="{{ route('account.orderDetail', $order->id) }}">{{ $order->id }}</a>
                                                 </td>
                                                 <td>{{ \Carbon\Carbon::parse($order->created_at)->format('d M, Y') }}</td>
                                                 <td>
                                                     @if ($order->status == 'pending')
-                                                    <span class="badge bg-danger">Pending</span>
+                                                        <span class="badge bg-danger">Pending</span>
                                                     @elseif ($order->status == 'shipped')
-                                                    <span class="badge bg-info">Shipped</span>
+                                                        <span class="badge bg-info">Shipped</span>
                                                     @elseif ($order->status == 'delivered')
-                                                    <span class="badge bg-success">Delivered</span>
+                                                        <span class="badge bg-success">Delivered</span>
                                                     @else
-                                                    <span class="badge bg-danger">Cancelled</span>
+                                                        <span class="badge bg-danger">Cancelled</span>
                                                     @endif
                                                 </td>
-                                                <td>Rp. {{ number_format($order->grand_total,2) }}</td>
+                                                <td>Rp. {{ number_format($order->grand_total, 2) }}</td>
                                             </tr>
                                         @endforeach
-
-                                        @else
+                                    @else
                                         <tr>
-                                            <td colspan="3">Orders not found</td>
+                                            <td colspan="5" style="text-align: center;">Orders not found</td>
                                         </tr>
-
                                     @endif
-                                    
+
                                 </tbody>
                             </table>
                         </div>
@@ -72,4 +71,3 @@
         </div>
     </section>
 @endsection
-

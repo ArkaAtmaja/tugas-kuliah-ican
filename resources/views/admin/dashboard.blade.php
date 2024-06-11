@@ -24,12 +24,12 @@
                     <div class="small-box card">
                         <div class="inner">
                             <h3>{{ $totalOrders }}</h3>
-                            <p>Total Orders</p>
+                            <p>Jumlah Pesanan</p>
                         </div>
                         <div class="icon">
                             <i class="ion ion-bag"></i>
                         </div>
-                        <a href="{{route('orders.index')}}" class="small-box-footer text-dark">More info <i
+                        <a href="{{ route('orders.index') }}" class="small-box-footer text-dark">Info lebih lanjut <i
                                 class="fas fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
@@ -38,12 +38,12 @@
                     <div class="small-box card">
                         <div class="inner">
                             <h3>{{ $totalProducts }}</h3>
-                            <p>Total Products</p>
+                            <p>Jumlah Produk</p>
                         </div>
                         <div class="icon">
                             <i class="ion ion-stats-bars"></i>
                         </div>
-                        <a href="{{route('products.index')}}" class="small-box-footer text-dark">More info <i
+                        <a href="{{ route('products.index') }}" class="small-box-footer text-dark">Info lebih lanjut <i
                                 class="fas fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
@@ -52,12 +52,12 @@
                     <div class="small-box card">
                         <div class="inner">
                             <h3>{{ $totalCustomers }}</h3>
-                            <p>Total Customers</p>
+                            <p>Jumlah Pelanggan</p>
                         </div>
                         <div class="icon">
                             <i class="ion ion-stats-bars"></i>
                         </div>
-                        <a href="{{route('users.index')}}" class="small-box-footer text-dark">More info <i
+                        <a href="{{ route('users.index') }}" class="small-box-footer text-dark">Info lebih lanjut <i
                                 class="fas fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
@@ -65,8 +65,8 @@
                 <div class="col-lg-4 col-6">
                     <div class="small-box card">
                         <div class="inner">
-                            <h3>{{number_format($totalRevenue,2)}}</h3>
-                            <p>Total Sale</p>
+                            <h3>@rupiah($totalRevenue)</h3>
+                            <p>Jumlah Penjualan</p>
                         </div>
                         <div class="icon">
                             <i class="ion ion-person-add"></i>
@@ -78,8 +78,8 @@
                 <div class="col-lg-4 col-6">
                     <div class="small-box card">
                         <div class="inner">
-                            <h3>{{number_format($revenueThisMonth,2)}}</h3>
-                            <p>Revenue This Month</p>
+                            <h3>@rupiah($revenueThisMonth)</h3>
+                            <p>Pendapatan Bulan Ini</p>
                         </div>
                         <div class="icon">
                             <i class="ion ion-person-add"></i>
@@ -91,7 +91,7 @@
                 <div class="col-lg-4 col-6">
                     <div class="small-box card">
                         <div class="inner">
-                            <h3>{{number_format($revenueLastMonth,2)}}</h3>
+                            <h3>@rupiah($revenueLastMonth)</h3>
                             <p>Revenue Last Month ({{ $lastMonthName }})</p>
                         </div>
                         <div class="icon">
@@ -104,7 +104,7 @@
                 <div class="col-lg-4 col-6">
                     <div class="small-box card">
                         <div class="inner">
-                            <h3>{{number_format($revenueLastThirtyDays,2)}}</h3>
+                            <h3>@rupiah($revenueLastMonth)</h3>
                             <p>Revenue Last 30 days</p>
                         </div>
                         <div class="icon">

@@ -162,11 +162,11 @@
                                         <div class="card-body text-center mt-3">
                                             <a class="h6 link" href="product.php">{{ $product->title }}</a>
                                             <div class="price mt-2">
-                                                <span class="h5"><strong>Rp. {{ $product->price }}</strong></span>
+                                                <span class="h5"><strong>@rupiah($product->price)</strong></span>
 
                                                 @if ($product->compare_price > 0)
                                                     <span class="h6 text-underline"><del>Rp.
-                                                            {{ $product->compare_price }}</del></span>
+                                                            @rupiah($product->compare_price)</del></span>
                                                 @endif
                                             </div>
                                         </div>
@@ -192,18 +192,17 @@
         rangeSlider = $(".js-range-slider").ionRangeSlider({
             type: "double",
             min: 0,
-            max: 1000,
+            max: 20000000,
             from: {{ $priceMin }},
-            step: 10,
+            step: 100000,
             to: {{ $priceMax }},
             skin: "round",
             max_postfix: "+",
-            prefix: "Rp. ",
+            prefix: "Rp",
             onFinish: function() {
                 apply_filters()
             }
         });
-
 
         // Saving it's instance to var
         var slider = $(".js-range-slider").data("ionRangeSlider");
@@ -225,26 +224,19 @@
                 }
             });
 
+
             var url = '{{ url()->current() }}?';
 
-            //Brand filter
+            // Brand Filter
             if (brands.length > 0) {
                 url += '&brand=' + brands.toString();
             }
 
-            //Price Range Filter
+            // Price Range Filter
             url += '&price_min=' + slider.result.from + '&price_max=' + slider.result.to;
 
-            //Sortings
-
-            var keyword = $("#search").val();
-
-            if (keyword.length > 0) {
-                url += '&search=' + keyword;
-            }
-
-            url += '&sort=' + $("#sort").val()
-
+            // Sorting Filter
+            url += '&sort=' + $("#sort").val();
 
             window.location.href = url;
         }

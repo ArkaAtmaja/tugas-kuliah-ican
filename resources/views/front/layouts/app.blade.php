@@ -61,8 +61,8 @@
             <div class="row align-items-center py-3 d-none d-lg-flex justify-content-between">
                 <div class="col-lg-4 logo">
                     <a href="{{ route('front.home') }}" class="text-decoration-none">
-                        <span class="h1 text-uppercase text-primary bg-dark px-2">Online</span>
-                        <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">SHOP</span>
+                        <span class="h1 text-uppercase text-primary bg-dark px-2">Kuy</span>
+                        <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">Belanja</span>
                     </a>
                 </div>
                 <div class="col-lg-6 col-6 text-left  d-flex justify-content-end align-items-center">
@@ -167,11 +167,9 @@
 
                     </ul>
                 </div>
-                <div class="right-nav py-0">
-                    <a href="{{ route('front.cart') }}" class="ml-3 d-flex pt-2">
-                        <i class="fas fa-shopping-cart text-primary"></i>
-                    </a>
-                </div>
+                <a href="{{ Auth::check() ? route('front.cart') : '#' }}" class="ml-3 d-flex pt-2" id="cart-link">
+                    <i class="fas fa-shopping-cart text-primary"></i>
+                </a>
             </nav>
         </div>
     </header>
@@ -216,9 +214,10 @@
                     <div class="footer-card">
                         <h3>My Account</h3>
                         <ul>
-                            <li><a href="{{ route('account.login') }}" title="Sell">Login</a></li>
-                            <li><a href="{{ route('account.register') }}" title="Advertise">Register</a></li>
-                            <li><a href="{{ route('front.cart') }}" title="Contact Us">My Orders</a></li>
+                            <li><a href="{{ route('account.login') }}" title="Login">Login</a></li>
+                            <li><a href="{{ route('account.register') }}" title="Register">Register</a></li>
+                            <li><a id="myOrdersLink" href="{{ route('front.cart') }}" title="My Orders">My
+                                    Orders</a></li>
                         </ul>
                     </div>
                 </div>
@@ -229,7 +228,7 @@
                 <div class="row">
                     <div class="col-12 mt-3">
                         <div class="copy-right text-center">
-                            <p>© Copyright 2022 Amazing Shop. All Rights Reserved</p>
+                            <strong>&copy; {{ date('Y') }} KuyBelanja</strong>
                         </div>
                     </div>
                 </div>
@@ -323,6 +322,38 @@
                 }
             });
         }
+        document.getElementById('cart-link').addEventListener('click', function(event) {
+            // Check apakah pengguna sudah login
+            var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
+
+            // Jika pengguna belum login, tampilkan SweetAlert2 dan hentikan aksi default
+            if (!isLoggedIn) {
+                event.preventDefault(); // Menghentikan tindakan bawaan dari anchor tag
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Perhatian',
+                    text: 'Harap login terlebih dahulu!',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+        document.getElementById('myOrdersLink').addEventListener('click', function(event) {
+            // Check apakah pengguna sudah login
+            var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
+
+            // Jika pengguna belum login, tampilkan SweetAlert2 dan hentikan aksi default
+            if (!isLoggedIn) {
+                event.preventDefault(); // Menghentikan tindakan bawaan dari anchor tag
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Perhatian',
+                    text: 'Harap login terlebih dahulu!',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
     </script>
 
     @yield('customJs')
