@@ -1,7 +1,5 @@
 <?php
-
-namespace App\Http\Controllers\APIPrivate\Midtrans;
-
+namespace App\Http\Controllers\Midtrans;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -82,7 +80,7 @@ class Config extends Controller
     public static function getBaseUrl()
     {
         return Config::$isProduction ?
-            Config::PRODUCTION_BASE_URL : Config::SANDBOX_BASE_URL;
+        Config::PRODUCTION_BASE_URL : Config::SANDBOX_BASE_URL;
     }
 
     /**
@@ -93,6 +91,6 @@ class Config extends Controller
     public static function getSnapBaseUrl()
     {
         return Config::$isProduction ?
-            Config::SNAP_PRODUCTION_BASE_URL : Config::SNAP_SANDBOX_BASE_URL;
+        Config::SNAP_PRODUCTION_BASE_URL : Config::SNAP_SANDBOX_BASE_URL;
     }
 }

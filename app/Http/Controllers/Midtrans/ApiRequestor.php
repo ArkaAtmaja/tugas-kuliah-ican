@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\APIPrivate\Midtrans;
-
+namespace App\Http\Controllers\Midtrans;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Exception;
-
 /**
  * Send request to Midtrans API
  * Better don't use this class directly, please use CoreApi, Snap, and Transaction instead
@@ -74,24 +72,24 @@ class ApiRequestor extends Controller
         if (!$server_key) {
             throw new Exception(
                 'The ServerKey/ClientKey is null, You need to set the server-key from Config. Please double-check Config and ServerKey key. ' .
-                    'You can check from the Midtrans Dashboard. ' .
-                    'See https://docs.midtrans.com/en/midtrans-account/overview?id=retrieving-api-access-keys ' .
-                    'for the details or contact support at support@midtrans.com if you have any questions.'
+                'You can check from the Midtrans Dashboard. ' .
+                'See https://docs.midtrans.com/en/midtrans-account/overview?id=retrieving-api-access-keys ' .
+                'for the details or contact support at support@midtrans.com if you have any questions.'
             );
         } else {
             if ($server_key == "") {
                 throw new Exception(
                     'The ServerKey/ClientKey is invalid, as it is an empty string. Please double-check your ServerKey key. ' .
-                        'You can check from the Midtrans Dashboard. ' .
-                        'See https://docs.midtrans.com/en/midtrans-account/overview?id=retrieving-api-access-keys ' .
-                        'for the details or contact support at support@midtrans.com if you have any questions.'
+                    'You can check from the Midtrans Dashboard. ' .
+                    'See https://docs.midtrans.com/en/midtrans-account/overview?id=retrieving-api-access-keys ' .
+                    'for the details or contact support at support@midtrans.com if you have any questions.'
                 );
-            } elseif (preg_match('/\s/', $server_key)) {
+            } elseif (preg_match('/\s/',$server_key)) {
                 throw new Exception(
                     'The ServerKey/ClientKey is contains white-space. Please double-check your API key. Please double-check your ServerKey key. ' .
-                        'You can check from the Midtrans Dashboard. ' .
-                        'See https://docs.midtrans.com/en/midtrans-account/overview?id=retrieving-api-access-keys ' .
-                        'for the details or contact support at support@midtrans.com if you have any questions.'
+                    'You can check from the Midtrans Dashboard. ' .
+                    'See https://docs.midtrans.com/en/midtrans-account/overview?id=retrieving-api-access-keys ' .
+                    'for the details or contact support at support@midtrans.com if you have any questions.'
                 );
             }
         }
@@ -162,7 +160,7 @@ class ApiRequestor extends Controller
             try {
                 $result_array = json_decode($result);
             } catch (Exception $e) {
-                throw new Exception("API Request Error unable to json_decode API response: " . $result . ' | Request url: ' . $url);
+                throw new Exception("API Request Error unable to json_decode API response: ".$result . ' | Request url: '.$url);
             }
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if (isset($result_array->status_code) && $result_array->status_code >= 401 && $result_array->status_code != 407) {

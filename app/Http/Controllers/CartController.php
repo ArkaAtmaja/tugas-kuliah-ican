@@ -17,6 +17,7 @@ use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Midtrans\{Config, Snap};
 
 
 class CartController extends Controller
@@ -250,7 +251,6 @@ class CartController extends Controller
 
     public function checkout()
     {
-
         $discount = 0;
 
         $cartAll = Carts::where('user_id', Auth::user()->id)->get();
@@ -427,6 +427,11 @@ class CartController extends Controller
             ]);
         }
 
+        // Inital Midtrans
+        Config::$serverKey = env("MIDTRANS_SERVER_KEY");
+        Config::$clientKey = env("MIDTRANS_CLIENT_KEY");
+        Config::$isSanitized = Config::$is3ds = true;
+
         // step -2 save user address
         $user = Auth::user();
         CustomerAddress::updateOrCreate(
@@ -445,7 +450,7 @@ class CartController extends Controller
                 'zip' => $request->zip
             ]
         );
-
+        
         // step - 3 store data in orders table
         $checkCart = Carts::where('user_id', $user->id)->get();
         if ($request->payment_method == 'cod') {
@@ -528,7 +533,7 @@ class CartController extends Controller
                     $productData->save();
                 }
             }
-
+            
             // Send Order Email
             orderEmail($order->id);
 
@@ -542,8 +547,122 @@ class CartController extends Controller
                 'orderId' => $order->id,
                 'status' => true
             ]);
-        } else {
+        } else if ($request->payment_method == 'e-wallet') {
+
+            $discountCodeId = NULL;
+            $promoCode = '';
+            $shipping = 0;
+            $discount = 0;
+            $subTotal  = 0;
+            foreach ($checkCart as $cart) {
+                $subTotal += (int) $cart->price * $cart->qty;
+            }
+
+            // Apply Discount Here
+            if (session()->has('code')) {
+                $code = session()->get('code');
+                if ($code->type == 'percent') {
+                    $discount = ($code->discount_amount / 100) * $subTotal;
+                } else {
+                    $discount = $code->discount_amount;
+                }
+                $discountCodeId = $code->id;
+                $promoCode = $code->code;
+            }
+
+            // Menghitung biaya shipping
+            $shippingInfo = ShippingCharge::where('country_id', $request->country)->first();
+            $totalQty = 0;
+            foreach ($checkCart as $cart) {
+                $totalQty += $cart->qty;
+            }
+
+            if ($shippingInfo != null) {
+                $shipping = $totalQty * $shippingInfo->amount;
+                $grandTotal = ($subTotal - $discount) + $shipping;
+            } else {
+                $shippingInfo = ShippingCharge::where('country_id', 'semua_negara')->first();
+                $shipping = $totalQty * $shippingInfo->amount;
+                $grandTotal = ($subTotal - $discount) + $shipping;
+            }
+
             // Proses pembayaran lain (misalnya pembayaran online) bisa ditambahkan di sini
+            $itemProductCart = array();
+            foreach ($checkCart as $cart) {
+                $itemProductCart[] = [
+                    'id'         => $cart->product_id,
+                    'quantity'   => $cart->qty,
+                    'name'       => $cart->name,
+                    'price'      => $cart->price
+                ];
+            }
+
+            $orderId = "ORD-" . rand(10, 20);
+            $gross_amount = intval($grandTotal);
+            $transaction_details = array(
+                'order_id' => $orderId, // isi order id anda
+                'gross_amount' => $gross_amount, // no decimal allowed for creditcard
+            );
+
+            $item_details = $itemProductCart;// Optional
+            // custom expired
+            $custom_expiry = [
+                'start_time' => date("Y-m-d H:i:s O", time()),
+                'unit' => 'day',
+                'duration' => 7
+            ];
+            // Populate customer's billing address
+            $billing_address = array(
+                'first_name'   => $request->first_name,
+                'last_name'    => $request->last_name,
+                'address'      => $request->address,
+                'city'         => $request->city,
+                'postal_code'  => $request->zip,
+                'phone'        => $request->mobile,
+                'country_code' => 'IDN'
+            );
+
+            // Biaya Pengiriman
+            $shipping_item = array(
+                'id' => 'shipping',
+                'price' => $shipping,
+                'quantity' => 1,
+                'name' => 'Shipping Cost'
+            );
+
+            $item_details[] = $shipping_item;
+
+            // Populate customer's shipping address
+            $shipping_address = array(
+                'first_name'   => $request->first_name,
+                'last_name'    => $request->last_name,
+                'address'      => $request->address,
+                'city'         => $request->city,
+                'postal_code'  => $request->zip,
+                'phone'        => $request->mobile,
+                'country_code' => 'IDN'
+            );
+
+            $customer_details = array(
+                'first_name'    => $request->first_name,
+                'last_name'     => $request->last_name,
+                'email'         => $request->email,
+                'phone'         => $request->mobile,
+                'billing_address'  => $billing_address,
+                'shipping_address' => $shipping_address
+            );
+            // Fill transaction details
+            $transaction = array(
+                'transaction_details' => $transaction_details,
+                'customer_details' => $customer_details,
+                'expiry' => $custom_expiry,
+                'item_details' => $item_details,
+            );
+
+            $response_data = ['midtrans' => Snap::getSnapToken($transaction), 'order_id_midtrans' => $orderId, 'order_id' => $orderId,  'expired_date' => $custom_expiry, 'status' => $request->payment_method, 'grand_total' => $gross_amount];
+
+            // return response()->json($response_data);
+            dd($response_data);
         }
     }
     // ini adalah akhir
