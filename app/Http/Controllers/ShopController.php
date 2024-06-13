@@ -141,11 +141,14 @@ class ShopController extends Controller
             ]);
         }
 
-        $count = ProductRating::where('email', $request->email)->count();
+        $count = ProductRating::where('email', $request->email)
+            ->where('product_id', $id)
+            ->count();
         if ($count > 0) {
-            session()->flash('error', 'Kamu telah memberi rating produk ini.');
+            session()->flash('error', 'Kamu telah memberi penilaian produk ini.');
             return response()->json([
                 'status' => true,
+                'message' => 'Kamu telah memberi penilaian produk ini.'
             ]);
         }
 
@@ -158,11 +161,11 @@ class ShopController extends Controller
         $productRating->status = 0;
         $productRating->save();
 
-        session()->flash('sukses', 'Terimakasih telah memberi rating.');
+        session()->flash('success', 'Terimakasih telah memberi penilaian.');
 
         return response()->json([
             'status' => true,
-            'message' => 'Terimakasih telah memberi rating.'
+            'message' => 'Terimakasih telah memberi penilaian.'
         ]);
     }
 }

@@ -32,7 +32,7 @@
                                             {{ $order->first_name . ' ' . $order->last_name }}</strong><br>
                                         Alamat: {{ $order->address }}, {{ $order->city }}, {{ $order->zip }},
                                         {{ $order->countryName }}<br>
-                                        Telpon: {{ $order->mobile }}<br>
+                                        Telpon: @formatPhone($order->mobile)<br>
                                         Email: {{ $order->email }}
                                     </address>
                                     <strong>Tanggal pengiriman</strong><br>
@@ -45,7 +45,7 @@
 
                                 <div class="col-sm-4 invoice-col">
                                     <!-- <b>Invoice #007612</b><br>
-                                                                                                                                                                                                                <br> -->
+                                                                                                                                                                                                                    <br> -->
                                     <b>Order ID:</b> {{ $order->id }}<br>
                                     <b>Total:</b> @rupiah($order->grand_total)<br>
                                     <b>Status:</b>

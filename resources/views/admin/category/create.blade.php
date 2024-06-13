@@ -25,9 +25,9 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="name">Nama Kategori</label>
+                                    <label for="name">Nama</label>
                                     <input type="text" name="name" id="name" class="form-control"
-                                        placeholder="Nama Kategori" autofocus required>
+                                        placeholder="Name" autofocus>
                                     <p></p>
                                 </div>
                             </div>
@@ -55,17 +55,17 @@
                                 <div class="mb-3">
                                     <label for="status">Status</label>
                                     <select name="status" id="status" class="form-control">
-                                        <option value="1">Aktif</option>
-                                        <option value="0">Tidak Aktif</option>
+                                        <option value="1">Active</option>
+                                        <option value="0">Inactive</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="status">Tampilkan di beranda</label>
+                                    <label for="status">Show On Home</label>
                                     <select name="showHome" id="showHome" class="form-control">
-                                        <option value="Yes">Ya</option>
-                                        <option value="No">Tidak</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
                                     </select>
                                 </div>
                             </div>

@@ -23,7 +23,7 @@ class CartController extends Controller
 {
     public function addToCart(Request $request)
     {
-        if(empty(Auth::user())) {
+        if (empty(Auth::user())) {
             $status = false;
             $message = 'Silahkan login masuk terlebih dahulu!';
             return response()->json([
@@ -41,7 +41,7 @@ class CartController extends Controller
             ]);
         }
         $getCart = Carts::where(['product_id' => $request->id, 'user_id' => Auth::user()->id])->first();
-        if(empty($getCart)) {
+        if (empty($getCart)) {
 
             $payloadInsert = array(
                 'product_id' => $request->id,
@@ -56,8 +56,7 @@ class CartController extends Controller
             $status = true;
             $message = '<strong>' . $product->title . ' </strong> Berhasil ditambahkan ke keranjangmu';
             session()->flash('success', $message);
-
-        }else{
+        } else {
             // $getCart->qty = $getCart->qty + 1;
             // $getCart->save();
             $status = false;
@@ -119,7 +118,7 @@ class CartController extends Controller
             return redirect()->route('account.login');
         }
         $userId = Auth::user()->id;
-        $cartContent = Carts::with('product.product_images')->where('carts.user_id', $userId)->get();   
+        $cartContent = Carts::with('product.product_images')->where('carts.user_id', $userId)->get();
         $data['cartContent'] = $cartContent;
         return view('front.cart', $data);
     }
@@ -162,7 +161,7 @@ class CartController extends Controller
             'status' => $status,
             'message' => $message
         ]);
-        
+
         die;
 
         $itemInfo = cart::get($rowId);
@@ -195,7 +194,7 @@ class CartController extends Controller
 
     public function deleteItem(Request $request)
     {
-        if(empty(Auth::user())) {
+        if (empty(Auth::user())) {
             $status = false;
             $message = 'Silahkan login masuk terlebih dahulu!';
             return response()->json([
@@ -203,7 +202,7 @@ class CartController extends Controller
                 'message' => $message
             ]);
         }
-        
+
         $checkCart = Carts::where(['product_id' => $request->rowId, 'user_id' => Auth::user()->id])->first();
         if (empty($checkCart)) {
             $errorMessage = 'Item tidak ditemukan dalam keranjang!';
@@ -217,14 +216,14 @@ class CartController extends Controller
         Carts::where(['product_id' => $request->rowId, 'user_id' => Auth::user()->id])->delete();
         $message = 'Item Berhasil dihapus';
         session()->flash('success', $message);
-        
+
         return response()->json([
             'status' => true,
             'message' => $message
         ]);
-        
+
         die;
-        
+
         $rowId = $request->rowId;
         $itemInfo = cart::get($rowId);
 
@@ -274,7 +273,7 @@ class CartController extends Controller
         $countries = Country::orderBy('name', 'ASC')->get();
 
         $subTotal = 0;
-        foreach($cartAll as $cart) {
+        foreach ($cartAll as $cart) {
             $subTotal += $cart->price * $cart->qty;
         }
 
@@ -301,7 +300,7 @@ class CartController extends Controller
             $totalQty = 0;
             $totalShippingCharge = 0;
             $grandTotal = 0;
-            foreach($cartAll as $cart) {
+            foreach ($cartAll as $cart) {
                 $totalQty += $cart->qty;
             }
 
@@ -394,9 +393,7 @@ class CartController extends Controller
     // awal
     public function processCheckout(Request $request)
     {
-
         // step -1 Apply Validation
-
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|min:1',
             'last_name' => 'required',
@@ -431,11 +428,7 @@ class CartController extends Controller
         }
 
         // step -2 save user address
-
-        //$customerAddress = CustomerAddress::find();
-
         $user = Auth::user();
-
         CustomerAddress::updateOrCreate(
             ['user_id' => $user->id],
             [
@@ -454,23 +447,20 @@ class CartController extends Controller
         );
 
         // step - 3 store data in orders table
-
         $checkCart = Carts::where('user_id', $user->id)->get();
         if ($request->payment_method == 'cod') {
             $discountCodeId = NULL;
             $promoCode = '';
             $shipping = 0;
             $discount = 0;
-            // $subTotal = Cart::subTotal(2, '.', '');
             $subTotal  = 0;
-            foreach($checkCart as $cart) {
+            foreach ($checkCart as $cart) {
                 $subTotal += (int) $cart->price * $cart->qty;
             }
 
-            //Apply Discount Here
+            // Apply Discount Here
             if (session()->has('code')) {
                 $code = session()->get('code');
-
                 if ($code->type == 'percent') {
                     $discount = ($code->discount_amount / 100) * $subTotal;
                 } else {
@@ -480,9 +470,8 @@ class CartController extends Controller
                 $promoCode = $code->code;
             }
 
-            // menghitung shipping
+            // Menghitung biaya shipping
             $shippingInfo = ShippingCharge::where('country_id', $request->country)->first();
-
             $totalQty = 0;
             foreach ($checkCart as $cart) {
                 $totalQty += $cart->qty;
@@ -520,8 +509,7 @@ class CartController extends Controller
             $order->country_id = $request->country;
             $order->save();
 
-            //step - 4 store order items in order items table
-
+            // step - 4 store order items in order items table
             foreach ($checkCart as $cart) {
                 $orderItem = new OrderItem;
                 $orderItem->order_id = $order->id;
@@ -541,42 +529,21 @@ class CartController extends Controller
                 }
             }
 
-
-            // foreach (Cart::content() as $item) {
-            //     $orderItem = new OrderItem;
-            //     $orderItem->product_id = $item->id;
-            //     $orderItem->order_id = $order->id;
-            //     $orderItem->name = $item->name;
-            //     $orderItem->qty = $item->qty;
-            //     $orderItem->price = $item->price;
-            //     $orderItem->total = $item->price * $item->qty;
-            //     $orderItem->save();
-
-            //     // Update Product Stok
-            //     $productData = Product::find($item->id);
-            //     if ($productData->track_qty == 'Yes') {
-            //         $currentQty = $productData->qty;
-            //         $updatedQty = $currentQty - $item->qty;
-            //         $productData->qty = $updatedQty;
-            //         $productData->save();
-            //     }
-            // }
-
             // Send Order Email
             orderEmail($order->id);
 
-            session()->flash('success', 'Kamu Berhasil Memesan');
+            // Menghapus data keranjang setelah checkout berhasil
+            Carts::where('user_id', $user->id)->delete();
 
-            // Cart::destroy();
-            // Carts::where('user_id', $user->id)->delete();
+            session()->flash('success', 'Kamu Berhasil Memesan');
 
             return response()->json([
                 'message' => 'Pesanan berhasil disimpan',
                 'orderId' => $order->id,
                 'status' => true
-
             ]);
         } else {
+            // Proses pembayaran lain (misalnya pembayaran online) bisa ditambahkan di sini
         }
     }
     // ini adalah akhir
@@ -631,7 +598,7 @@ class CartController extends Controller
 
                 $shippingCharge = $totalQty * $shippingInfo->amount;
                 $grandTotal = ($subTotal - $discount) + $shippingCharge;
-                
+
                 return response()->json([
                     'status' => true,
                     'grandTotal' => number_format($grandTotal, 2),
