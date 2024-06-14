@@ -4,9 +4,9 @@
         <div class="container">
             <div class="light-font">
                 <ol class="breadcrumb primary-color mb-0">
-                    <li class="breadcrumb-item"><a class="white-text" href="{{ route('front.home') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a class="white-text" href="{{ route('front.home') }}">KuyBelanja</a></li>
                     <li class="breadcrumb-item"><a class="white-text" href="{{ route('front.shop') }}">Shop</a></li>
-                    <li class="breadcrumb-item">Cart</li>
+                    <li class="breadcrumb-item">Keranjang</li>
                 </ol>
             </div>
         </div>
@@ -40,15 +40,15 @@
                             <table class="table" id="cart">
                                 <thead>
                                     <tr>
-                                        <th>Item</th>
-                                        <th>Price</th>
-                                        <th>Quantity</th>
+                                        <th>Barang</th>
+                                        <th>Harga</th>
+                                        <th>Kuantitas</th>
                                         <th>Total</th>
-                                        <th>Remove</th>
+                                        <th>Hapus</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php 
+                                    @php
                                         $grandTotal = 0;
                                     @endphp
                                     @foreach ($cartContent as $item)
@@ -69,7 +69,7 @@
                                                     <h2>{{ $item->name }}</h2>
                                                 </div>
                                             </td>
-                                            <td>Rp{{ number_format($item->price, 2, '.', ',') }}</td>
+                                            <td>Rp{{ number_format($item->price, 0, ',', '.') }}</td>
                                             <td>
                                                 <div class="input-group quantity mx-auto" style="width: 100px;">
                                                     <div class="input-group-btn">
@@ -89,7 +89,7 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>Rp{{ number_format($item->price * $item->qty, 2, '.', ',') }}</td>
+                                            <td>Rp{{number_format($item->price * $item->qty, 0, ',', '.') }}</td>
                                             <td>
                                                 <button class="btn btn-sm btn-danger"
                                                     onclick="deleteItem('{{ $item->product_id }}');"><i
@@ -107,17 +107,16 @@
 
                             <div class="card-body">
                                 <div class="sub-title">
-                                    <h2 class="bg-white">Cart Summery</h3>
+                                    <h2 class="bg-white">Ringkasan Keranjang</h3>
                                 </div>
                                 <div class="d-flex justify-content-between pb-2">
                                     <div>Subtotal</div>
                                     {{-- <div>Rp{{ Cart::subtotal() }}</div> --}}
-                                    <div>Rp{{ number_format($grandTotal) }}</div>
+                                    <div>Rp{{ number_format($grandTotal, 0, '', '.') }}</div>
                                 </div>
                                 <div class="pt-5">
                                     <a href="{{ route('front.checkout') }}" id="checkoutButton"
-                                        class="btn-dark btn btn-block w-100">Proceed
-                                        to Checkout</a>
+                                        class="btn-dark btn btn-block w-100">Lanjutkan ke pembayaran</a>
                                 </div>
                             </div>
                         </div>
